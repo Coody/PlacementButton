@@ -71,6 +71,19 @@
     [_buttonDic removeAllObjects];
 }
 
+-(BOOL)removeButtonWithTag:(NSInteger)tempTag{
+    BOOL isSuccess = NO;
+    PlacementUIButton *button = [_buttonDic objectForKey:@(tempTag)];
+    if ( button != nil ) {
+        [_buttonDic removeObjectForKey:@(tempTag)];
+        [button removeFromSuperview];
+        button.pressedButtonBlock = nil;
+        button = nil;
+        isSuccess = YES;
+    }
+    return isSuccess;
+}
+
 #pragma mark - 內部方法
 -(instancetype)init{
     self = [super init];
@@ -92,6 +105,7 @@
                                                                                     D_PlacementItemTools_Width, 
                                                                                     D_PlacementItemTools_Width)];
     [button setBackgroundColor:[UIColor lightGrayColor]];
+    button.tag = _buttonIndex;
     button.pressedButtonBlock = tempPressedButtonBlock;
     button.layer.cornerRadius = 10.0f;
     button.layer.masksToBounds = YES;

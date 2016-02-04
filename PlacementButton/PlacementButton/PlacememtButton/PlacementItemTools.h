@@ -31,4 +31,9 @@
  */
 -(void)removeButtons;
 
+/**
+ * @brief - 移除指定 tag 的 button
+ */
+-(BOOL)removeButtonWithTag:(NSInteger)tempTag;
+
 @end
