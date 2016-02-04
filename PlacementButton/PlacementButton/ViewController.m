@@ -8,8 +8,6 @@
 
 #import "ViewController.h"
 
-#import "PlacementItemTools.h"
-
 @interface ViewController ()
 @property (nonatomic , strong) UILabel *label;
 @end
@@ -19,10 +17,6 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view, typically from a nib.
-    
-    [[PlacementItemTools sharedInstance] createButtonWithPressedBlock:^(UIButton *responseButton) {
-        NSLog(@"按下！");
-    }];
 }
 
 - (void)didReceiveMemoryWarning {
