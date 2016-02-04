@@ -23,7 +23,7 @@
 #define D_PlacementItemTools_Init_X ([UIScreen mainScreen].bounds.size.width - D_PlacementItemTools_Width - D_PlacementItemTools_Margin)
 #define D_PlacementItemTools_Init_Y (D_PlacementItemTools_Height*2)
 
-#pragma mark - UIButton Category
+#pragma mark - Private UIButton
 @interface PlacementUIButton : UIButton
 @property (nonatomic , copy) void(^pressedButtonBlock)(UIButton *);
 @end
@@ -31,6 +31,8 @@
 @implementation PlacementUIButton
 @end
 
+
+#pragma mark - PlacementItemTools
 @interface PlacementItemTools()
 {
     UIWindow *_tempKeyWindow;
