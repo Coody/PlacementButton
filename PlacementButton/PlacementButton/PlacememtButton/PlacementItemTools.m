@@ -118,7 +118,7 @@
 {
     
     CGPoint resultCenterPoint = CGPointMake(button.center.x,
-                                      button.center.y);
+                                            button.center.y);
     CGPoint tempCheckTouchPoint = resultCenterPoint;
     
     // Y 值在 0~80 以及 400~480 的範圍（已高度 480 來算）
@@ -127,25 +127,14 @@
         resultCenterPoint.y = D_PlacementItemTools_Height*0.5 + D_PlacementItemTools_Margin;
         
         // 如果 x 超過邊界，要回到邊界
-        if ( resultCenterPoint.x < D_PlacementItemTools_Width*0.5 + D_PlacementItemTools_Margin ) {
-            resultCenterPoint.x = D_PlacementItemTools_Width*0.5 + D_PlacementItemTools_Margin;
-        }
-        else if( resultCenterPoint.x > _mainScreenSize.width - D_PlacementItemTools_Width*0.5 - D_PlacementItemTools_Margin ){
-            resultCenterPoint.x = _mainScreenSize.width - D_PlacementItemTools_Width*0.5 - D_PlacementItemTools_Margin;
-        }
-        
+        resultCenterPoint.x = [self checkX:resultCenterPoint.x];
     }
     else if ( resultCenterPoint.y >= _mainScreenSize.height - D_PlacementItemTools_Edge_BottomY_Height ){
         // 移動到最下面（ x 不動 , y 動 ）
         resultCenterPoint.y = _mainScreenSize.height - D_PlacementItemTools_Height*0.5 - D_PlacementItemTools_Margin;
         
         // 如果 x 超過邊界，要回到邊界
-        if ( resultCenterPoint.x < D_PlacementItemTools_Width*0.5 + D_PlacementItemTools_Margin ) {
-            resultCenterPoint.x = D_PlacementItemTools_Width*0.5 + D_PlacementItemTools_Margin;
-        }
-        else if( resultCenterPoint.x > _mainScreenSize.width - D_PlacementItemTools_Width*0.5 - D_PlacementItemTools_Margin ){
-            resultCenterPoint.x = _mainScreenSize.width - D_PlacementItemTools_Width*0.5 - D_PlacementItemTools_Margin;
-        }
+        resultCenterPoint.x = [self checkX:resultCenterPoint.x];
     }
     else{
         if ( resultCenterPoint.x > _mainScreenSize.width*0.5 ) {
@@ -172,6 +161,18 @@
             }
         }
     }];
+}
+
+-(CGFloat)checkX:(CGFloat)recentX{
+    // 如果 x 超過邊界，要回到邊界
+    CGFloat newX = 0.0f;
+    if ( recentX < D_PlacementItemTools_Width*0.5 + D_PlacementItemTools_Margin ) {
+        newX = D_PlacementItemTools_Width*0.5 + D_PlacementItemTools_Margin;
+    }
+    else if( recentX > _mainScreenSize.width - D_PlacementItemTools_Width*0.5 - D_PlacementItemTools_Margin ){
+        newX = _mainScreenSize.width - D_PlacementItemTools_Width*0.5 - D_PlacementItemTools_Margin;
+    }
+    return newX;
 }
 
 
