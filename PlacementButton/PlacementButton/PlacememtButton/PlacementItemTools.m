@@ -23,6 +23,14 @@
 #define D_PlacementItemTools_Init_X ([UIScreen mainScreen].bounds.size.width - D_PlacementItemTools_Width - D_PlacementItemTools_Margin)
 #define D_PlacementItemTools_Init_Y (D_PlacementItemTools_Height*2)
 
+#pragma mark - UIButton Category
+@interface PlacementUIButton : UIButton
+@property (nonatomic , copy) void(^pressedButtonBlock)(UIButton *);
+@end
+
+@implementation PlacementUIButton
+@end
+
 @interface PlacementItemTools()
 {
     UIWindow *_tempKeyWindow;
@@ -30,7 +38,7 @@
 }
 @property (nonatomic , assign) NSInteger buttonIndex;
 @property (nonatomic , strong) NSMutableDictionary *buttonDic;
-@property (copy) void(^pressedButtonBlock)(UIButton *);
+
 @end
 
 @implementation PlacementItemTools
@@ -48,14 +56,15 @@
 }
 
 -(void)setHidden:(BOOL)isHidden{
-    for ( UIButton *unit in _buttonDic ) {
-        [unit setHidden:isHidden];
+    for ( PlacementUIButton *button in _buttonDic ) {
+        [button setHidden:isHidden];
     }
 }
 
 -(void)removeButtons{
-    for ( UIButton *unit in _buttonDic ) {
-        [unit removeFromSuperview];
+    for ( PlacementUIButton *button in _buttonDic ) {
+        [button removeFromSuperview];
+        button.pressedButtonBlock = nil;
     }
     [_buttonDic removeAllObjects];
 }
@@ -75,13 +84,13 @@
 -(void)createButtonWithPressedBlock:(void(^)(UIButton *responseButton))tempPressedButtonBlock
 {
     _buttonIndex = _buttonIndex + 1;
-    _pressedButtonBlock = tempPressedButtonBlock;
     
-    UIButton *button = [[UIButton alloc] initWithFrame:CGRectMake(D_PlacementItemTools_Init_X,
-                                                                  D_PlacementItemTools_Init_Y,
-                                                                  D_PlacementItemTools_Width,
-                                                                  D_PlacementItemTools_Width)];
+    PlacementUIButton *button = [[PlacementUIButton alloc] initWithFrame:CGRectMake(D_PlacementItemTools_Init_X, 
+                                                                                    D_PlacementItemTools_Init_Y, 
+                                                                                    D_PlacementItemTools_Width, 
+                                                                                    D_PlacementItemTools_Width)];
     [button setBackgroundColor:[UIColor lightGrayColor]];
+    button.pressedButtonBlock = tempPressedButtonBlock;
     button.layer.cornerRadius = 10.0f;
     button.layer.masksToBounds = YES;
     [button setAlpha:0.6f];
@@ -114,7 +123,7 @@
                                 button.center.y + delta_y);
 }
 
-- (void)wasDraggedExit:(UIButton *)button
+- (void)wasDraggedExit:(PlacementUIButton *)button
 {
     
     CGPoint resultCenterPoint = CGPointMake(button.center.x,
@@ -147,7 +156,6 @@
         }
     }
     
-    __weak __typeof(self)weakSelf = self;
     [UIView animateWithDuration:0.25f animations:^{
         // move button
         button.center = resultCenterPoint;
@@ -156,8 +164,7 @@
         if ( finished ) {
             if ( tempCheckTouchPoint.x == button.center.x && tempCheckTouchPoint.y == button.center.y ) {
                 // Touch
-                __strong __typeof(weakSelf)strongSelf = weakSelf;
-                strongSelf->_pressedButtonBlock(button);
+                button.pressedButtonBlock(button);
             }
         }
     }];

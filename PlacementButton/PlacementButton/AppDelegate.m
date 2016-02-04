@@ -30,7 +30,11 @@
     
     
     [[PlacementItemTools sharedInstance] createButtonWithPressedBlock:^(UIButton *responseButton) {
-        NSLog(@"按下！");
+        NSLog(@"按下 A ！");
+    }];
+    
+    [[PlacementItemTools sharedInstance] createButtonWithPressedBlock:^(UIButton *responseButton) {
+        NSLog(@"按下 B ！");
     }];
     
     return YES;
