@@ -29,7 +29,7 @@
 /**
  * @brief - 移除全部動態按鈕
  */
--(void)removeButtons;
+-(void)removeAllButtons;
 
 /**
  * @brief - 移除指定 tag 的 button

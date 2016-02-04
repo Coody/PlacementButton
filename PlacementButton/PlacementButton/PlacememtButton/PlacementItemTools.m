@@ -63,7 +63,7 @@
     }
 }
 
--(void)removeButtons{
+-(void)removeAllButtons{
     for ( PlacementUIButton *button in _buttonDic ) {
         [button removeFromSuperview];
         button.pressedButtonBlock = nil;
@@ -113,6 +113,7 @@
     [button addTarget:self action:@selector(beginTouch:) forControlEvents:(UIControlEventTouchDown)];
     [button addTarget:self action:@selector(wasDragged:withEvent:) forControlEvents:(UIControlEventTouchDragInside)];
     [button addTarget:self action:@selector(wasDraggedExit:) forControlEvents:(UIControlEventTouchUpInside)];
+    [button addTarget:self action:@selector(wasDraggedExit:) forControlEvents:(UIControlEventTouchUpOutside)];
     
     [_tempKeyWindow addSubview:button];
     
