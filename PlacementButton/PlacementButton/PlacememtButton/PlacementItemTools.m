@@ -188,7 +188,7 @@
 
 -(CGFloat)checkX:(CGFloat)recentX{
     // 如果 x 超過邊界，要回到邊界
-    CGFloat newX = 0.0f;
+    CGFloat newX = recentX;
     if ( recentX < D_PlacementItemTools_Width*0.5 + D_PlacementItemTools_Margin ) {
         newX = D_PlacementItemTools_Width*0.5 + D_PlacementItemTools_Margin;
     }
