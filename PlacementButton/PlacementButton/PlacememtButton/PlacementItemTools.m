@@ -41,6 +41,12 @@
 #define D_PlacementItemTools_Init_X ([UIScreen mainScreen].bounds.size.width - D_PlacementItemTools_Width - D_PlacementItemTools_Margin)
 #define D_PlacementItemTools_Init_Y (D_PlacementItemTools_Height*2)
 
+// 動畫時間
+/** 目前拖拉按鈕放開後，回到邊緣的速度 */
+static CGFloat const kAnimationDuration_Move = 0.25f;
+/** 跟隨的按鈕在拖拉按鈕放開後，回到邊緣的速度（建議慢一點點，會有跟隨移動的感覺） */
+static CGFloat const kAnimationDuration_Follow = 0.35f;
+
 #pragma mark - Private UIButton
 @interface PlacementUIButton : UIButton
 @property (nonatomic , copy) void(^pressedButtonBlock)(UIButton *);
@@ -78,7 +84,7 @@
 
 -(void)endFollowRootButton:(PlacementUIButton *)rootButton{
     __weak __typeof(self)weakSelf = self;
-    [UIView animateWithDuration:0.5f animations:^{
+    [UIView animateWithDuration:kAnimationDuration_Follow animations:^{
         __strong __typeof(weakSelf)strongSelf = weakSelf;
         strongSelf.center = [strongSelf getEndCenterPoint:rootButton.center];
     }];
@@ -148,6 +154,14 @@
     }
 }
 
+-(UIButton *)getButtonWithTag:(NSUInteger)tempTag{
+    PlacementUIButton *button = nil;
+    if ( [_buttonDic count] >= tempTag || tempTag > 0 ) {
+        button = [_buttonDic objectForKey:@(tempTag-1)];
+    }
+    return button;
+}
+
 -(void)removeAllButtons{
     for ( PlacementUIButton *button in _buttonDic ) {
         [button removeFromSuperview];
@@ -180,7 +194,9 @@
     return self;
 }
 
--(void)createButtonWithPressedBlock:(void(^)(UIButton *responseButton))tempPressedButtonBlock
+-(void)createButtonWithNormalImage:(UIImage *)normalImage 
+               withHightLightImage:(UIImage *)hightLightImage 
+                  WithPressedBlock:(void(^)(UIButton *responseButton))tempPressedButtonBlock
 {
     if ( [_buttonArray count] >= 2 ) {
         return;
@@ -188,7 +204,7 @@
     _buttonIndex = _buttonIndex + 1;
     
     PlacementUIButton *button;
-    if ( _buttonIndex == 0 ) {
+    if ( _buttonIndex == 1 ) {
         button = [[PlacementUIButton alloc] initWithFrame:CGRectMake(D_PlacementItemTools_Init_X, 
                                                                      D_PlacementItemTools_Init_Y, 
                                                                      D_PlacementItemTools_Width, 
@@ -196,10 +212,24 @@
     }
     else{
         UIButton *latestButton = [_buttonDic objectForKey:@(_buttonIndex - 1)];
-        button = [[PlacementUIButton alloc] initWithFrame:CGRectMake(latestButton.frame.origin.x, 
-                                                                     latestButton.frame.origin.y + latestButton.frame.size.height + 10 , 
+        button = [[PlacementUIButton alloc] initWithFrame:CGRectMake(0, 
+                                                                     0, 
                                                                      D_PlacementItemTools_Width, 
                                                                      D_PlacementItemTools_Height)];
+        button.center = [button getEndCenterPoint:latestButton.center];
+    }
+    
+    if ( normalImage != nil ) {
+        [button setImage:[normalImage  
+                          resizableImageWithCapInsets:UIEdgeInsetsMake( 10, 10, 10, 10) 
+                          resizingMode:UIImageResizingModeStretch] 
+                forState:UIControlStateNormal];
+    }
+    if ( hightLightImage != nil ) {
+        [button setImage:[hightLightImage  
+                          resizableImageWithCapInsets:UIEdgeInsetsMake( 10, 10, 10, 10) 
+                          resizingMode:UIImageResizingModeStretch] 
+                forState:UIControlStateHighlighted];
     }
     
     [button setBackgroundColor:[UIColor lightGrayColor]];
@@ -290,7 +320,7 @@
     // 將中心點丟進類別方法，來調整其位置
     resultCenterPoint = [PlacementItemTools getFixCenterPoint:resultCenterPoint];
     
-    [UIView animateWithDuration:0.25f animations:^{
+    [UIView animateWithDuration:kAnimationDuration_Move animations:^{
         // move button
         button.center = resultCenterPoint;
         [button setAlpha:0.6f];

@@ -6,6 +6,7 @@
 
 #import <Foundation/Foundation.h>
 
+@class UIImage;
 @class UIButton;
 
 @interface PlacementItemTools : NSObject
@@ -16,15 +17,23 @@
 #pragma mark - 建立動態按鈕
 
 /**
- * @brief - 建立一個動態按鈕
- * 
+ * @brief   - 建立一個動態按鈕
+ * @details - 動態按鈕會以 Tag 的方式產生， Tag 由 1 開始，每次產生完下一個就會累加 1
  */
--(void)createButtonWithPressedBlock:(void(^)(UIButton *responseButton))tempPressedButtonBlock;
+-(void)createButtonWithNormalImage:(UIImage *)normalImage 
+               withHightLightImage:(UIImage *)hightLightImage 
+                  WithPressedBlock:(void(^)(UIButton *responseButton))tempPressedButtonBlock;
 
 /**
  * @brief - 隱藏/顯示所有動態按鈕
  */
 -(void)setHidden:(BOOL)isHidden;
+
+/**
+ * @brief   - 取得指定 Tag 的 button
+ * @warning - Tag 編號從 1 開始， 1,2,3 ...
+ */
+-(UIButton *)getButtonWithTag:(NSUInteger)tempTag;
 
 /**
  * @brief - 移除全部動態按鈕
