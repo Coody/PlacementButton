@@ -41,6 +41,9 @@
 #define D_PlacementItemTools_Init_X ([UIScreen mainScreen].bounds.size.width - D_PlacementItemTools_Width - D_PlacementItemTools_Margin)
 #define D_PlacementItemTools_Init_Y (D_PlacementItemTools_Height*2)
 
+// 最大的 Button 數目
+NSUInteger const kPlacementItemTools_Max_Button_Count = 2;
+
 // 動畫時間
 /** 目前拖拉按鈕放開後，回到邊緣的速度 */
 static CGFloat const kAnimationDuration_Move = 0.25f;
@@ -91,7 +94,27 @@ static CGFloat const kAnimationDuration_Follow = 0.35f;
 }
 
 -(void)followCloselyWithButton:(PlacementUIButton *)rootButton{
+    CGFloat newX = self.center.x;
+    CGFloat newY = self.center.y;
+    CGFloat checkMaxX = rootButton.center.x + (D_PlacementItemTools_Width + D_PlacementItemTools_Margin);
+    CGFloat checkMinX = rootButton.center.x - (D_PlacementItemTools_Width + D_PlacementItemTools_Margin);
+    CGFloat checkMaxY = rootButton.center.y + (D_PlacementItemTools_Height + D_PlacementItemTools_Margin);
+    CGFloat checkMinY = rootButton.center.y - (D_PlacementItemTools_Height + D_PlacementItemTools_Margin);
+    if ( checkMaxX < newX ) {
+        newX = checkMaxX;
+    }
+    else if( checkMinX > newX ){
+        newX = checkMinX;
+    }
     
+    if ( checkMaxY < newY ) {
+        newY = checkMaxY;
+    }
+    else if( checkMinY > newY ){
+        newY = checkMinY;
+    }
+    
+    self.center = CGPointMake(newX, newY);
 }
 
 -(CGPoint)getEndCenterPoint:(CGPoint)targetCenterPoint{
@@ -106,7 +129,7 @@ static CGFloat const kAnimationDuration_Follow = 0.35f;
         // 放在 TargetPoint 的右邊，如果超過，就自動改成左邊
         fixX = targetCenterPoint.x + D_PlacementItemTools_Width + D_PlacementItemTools_Margin;
         if ( fixX > mainScreenSize.width - D_PlacementItemTools_Width*0.5 - D_PlacementItemTools_Margin ) {
-            fixX = targetCenterPoint.x - D_PlacementItemTools_Width - D_PlacementItemTools_Width;
+            fixX = targetCenterPoint.x - D_PlacementItemTools_Width - D_PlacementItemTools_Margin;
         }
     }
     else{
@@ -198,7 +221,7 @@ static CGFloat const kAnimationDuration_Follow = 0.35f;
                withHightLightImage:(UIImage *)hightLightImage 
                   WithPressedBlock:(void(^)(UIButton *responseButton))tempPressedButtonBlock
 {
-    if ( [_buttonArray count] >= 2 ) {
+    if ( [_buttonArray count] >= kPlacementItemTools_Max_Button_Count ) {
         return;
     }
     _buttonIndex = _buttonIndex + 1;
@@ -220,21 +243,24 @@ static CGFloat const kAnimationDuration_Follow = 0.35f;
     }
     
     if ( normalImage != nil ) {
-        [button setImage:[normalImage  
-                          resizableImageWithCapInsets:UIEdgeInsetsMake( 10, 10, 10, 10) 
-                          resizingMode:UIImageResizingModeStretch] 
-                forState:UIControlStateNormal];
+        [button setBackgroundImage:[normalImage  
+                                    resizableImageWithCapInsets:UIEdgeInsetsMake( 10, 10, 10, 10) 
+                                    resizingMode:UIImageResizingModeStretch] 
+                          forState:UIControlStateNormal];
     }
     if ( hightLightImage != nil ) {
-        [button setImage:[hightLightImage  
-                          resizableImageWithCapInsets:UIEdgeInsetsMake( 10, 10, 10, 10) 
-                          resizingMode:UIImageResizingModeStretch] 
-                forState:UIControlStateHighlighted];
+        [button setBackgroundImage:[hightLightImage  
+                                    resizableImageWithCapInsets:UIEdgeInsetsMake( 10, 10, 10, 10) 
+                                    resizingMode:UIImageResizingModeStretch] 
+                          forState:UIControlStateHighlighted];
     }
     
     [button setBackgroundColor:[UIColor lightGrayColor]];
     button.tag = _buttonIndex;
     button.pressedButtonBlock = tempPressedButtonBlock;
+#ifdef D_CoodyTest
+    [button setTitle:[NSString stringWithFormat:@"%ld" , (long)button.tag] forState:(UIControlStateNormal)];
+#endif
     button.layer.cornerRadius = 10.0f;
     button.layer.masksToBounds = YES;
     [button setAlpha:0.6f];
@@ -299,10 +325,21 @@ static CGFloat const kAnimationDuration_Follow = 0.35f;
                 }
                 else{
                     PlacementUIButton *checkButton = [_buttonArray objectAtIndex:(index - 1)];
-                    if ( checkButton == button  && index > 1 ) {
-                        checkButton = [_buttonArray objectAtIndex:(index - 2)];
+                    if ( checkButton == button ) {
+                        
+                        if ( index > 1 ) {
+                            checkButton = [_buttonArray objectAtIndex:(index - 2)];
+                            [unit followCloselyWithButton:checkButton];
+                        }
+                        else{
+                            [unit followRootButton:checkButton];
+                        }
+                        
+                        
                     }
-                    [unit followRootButton:checkButton];
+                    else{
+                        [unit followCloselyWithButton:checkButton];
+                    }
                 }
             }
             index++;
@@ -354,7 +391,7 @@ static CGFloat const kAnimationDuration_Follow = 0.35f;
                 }
                 else{
                     PlacementUIButton *checkButton = [_buttonArray objectAtIndex:(index - 1)];
-                    if ( checkButton == button  && index > 1 ) {
+                    if ( (checkButton == button) && (index > 1) ) {
                         checkButton = [_buttonArray objectAtIndex:(index - 2)];
                     }
                     [unit endFollowRootButton:checkButton];

@@ -9,6 +9,8 @@
 @class UIImage;
 @class UIButton;
 
+extern NSUInteger const kPlacementItemTools_Max_Button_Count;
+
 @interface PlacementItemTools : NSObject
 
 #pragma mark - Shared Instance
