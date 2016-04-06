@@ -29,13 +29,17 @@
     [self.window makeKeyAndVisible];
     
     
-    [[PlacementItemTools sharedInstance] createButtonWithPressedBlock:^(UIButton *responseButton) {
-        NSLog(@"按下 A ！");
-    }];
+    [[PlacementItemTools sharedInstance] createButtonWithNormalImage:nil 
+                                                 withHightLightImage:nil 
+                                                    WithPressedBlock:^(UIButton *responseButton) {
+                                                        NSLog(@"按下 A ！");
+                                                    }];
     
-    [[PlacementItemTools sharedInstance] createButtonWithPressedBlock:^(UIButton *responseButton) {
-        NSLog(@"按下 B ！");
-    }];
+    [[PlacementItemTools sharedInstance] createButtonWithNormalImage:nil 
+                                                 withHightLightImage:nil 
+                                                    WithPressedBlock:^(UIButton *responseButton) {
+                                                        NSLog(@"按下 B ！");
+                                                    }];
     
     return YES;
 }

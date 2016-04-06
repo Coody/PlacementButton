@@ -7,28 +7,30 @@
 #import "PlacementItemTools.h"
 #import <UIKit/UIKit.h>
 
+#define D_PlacementItemTools_Follow
+
+/*
+ 底下 define 的說明：
+ 將畫面分成四個區塊：
+ ┌─────────────┐
+ │      1      │
+ ├──────┬──────┤
+ │      │      │
+ │      │      │
+ │  2   │   3  │
+ │      │      │
+ │      │      │
+ ├──────┴──────┤
+ │      4      │
+ └─────────────┘
+ 當按鈕中心點再這些範圍的時候，會自動修正回邊邊，
+ 如：當按鈕移動到 1 的時候，放開會回到 1 的螢幕邊框貼住；當按鈕移動到 3 的時候，方開會回到 3 的螢幕邊框（也就是右邊邊框）貼住。
+ D_PlacementItemTools_Edge_TopY_Height 就是設定 1 的高度
+ D_PlacementItemTools_Edge_BottomY_Height 就是設定 4 的高度
+ */
 // 會貼牆壁的範圍
 #define D_PlacementItemTools_Edge_TopY_Height (0)
 #define D_PlacementItemTools_Edge_BottomY_Height D_PlacementItemTools_Edge_TopY_Height
-/*
- 說明：
- 將畫面分成四個區塊：
-  ┌─────────────┐
-  │      1      │
-  ├──────┬──────┤
-  │      │      │
-  │      │      │
-  │  2   │   3  │
-  │      │      │
-  │      │      │
-  ├──────┴──────┤
-  │      4      │
-  └─────────────┘
- 當按鈕中心點再這些範圍的時候，會自動修正回邊邊，
- 如：當按鈕移動到 1 的時候，放開會回到 1 的螢幕邊框貼住；當按鈕移動到 3 的時候，方開會回到 3 的螢幕邊框（也就是右邊邊框）貼住。
-  D_PlacementItemTools_Edge_TopY_Height 就是設定 1 的高度
-  D_PlacementItemTools_Edge_BottomY_Height 就是設定 4 的高度
- */
 
 // 離牆壁的微小距離
 #define D_PlacementItemTools_Margin (2)
@@ -38,7 +40,7 @@
 #define D_PlacementItemTools_Height D_PlacementItemTools_Width
 
 // 按鈕透明度
-#define D_PlacementButton_Alpha (0.6f)
+#define D_PlacementButton_Alpha (1.0f)
 
 // 按鈕起始位置
 #define D_PlacementItemTools_Init_X ([UIScreen mainScreen].bounds.size.width - D_PlacementItemTools_Width - D_PlacementItemTools_Margin)
@@ -55,6 +57,9 @@ static CGFloat const kAnimationDuration_Follow = 0.25f;
 
 #pragma mark - Private UIButton
 @interface PlacementUIButton : UIButton
+{
+    CGFloat _originalFrame;
+}
 /** 是否是按鈕按下的狀態？ */
 @property (nonatomic , assign) BOOL isOnTouch;
 /** 是否 */
@@ -75,14 +80,17 @@ static CGFloat const kAnimationDuration_Follow = 0.25f;
 }
 
 #pragma mark - 按鈕動畫
+/**
+ * @brief - 
+ */
 -(void)beginMoveToRootButton:(PlacementUIButton *)rootButton{
     CGFloat newX = self.center.x;
     CGFloat newY = self.center.y;
     CGFloat moveDistance = 12;
-    //    CGFloat checkMaxX = rootButton.center.x + (D_PlacementItemTools_Width + moveDistance);
-    //    CGFloat checkMinX = rootButton.center.x - (D_PlacementItemTools_Width + moveDistance);
-    //    CGFloat checkMaxY = rootButton.center.y + (D_PlacementItemTools_Height + moveDistance);
-    //    CGFloat checkMinY = rootButton.center.y - (D_PlacementItemTools_Height + moveDistance);
+//    CGFloat checkMaxX = rootButton.center.x + (D_PlacementItemTools_Width + moveDistance);
+//    CGFloat checkMinX = rootButton.center.x - (D_PlacementItemTools_Width + moveDistance);
+//    CGFloat checkMaxY = rootButton.center.y + (D_PlacementItemTools_Height + moveDistance);
+//    CGFloat checkMinY = rootButton.center.y - (D_PlacementItemTools_Height + moveDistance);
     CGFloat checkMaxX = rootButton.center.x + moveDistance;
     CGFloat checkMinX = rootButton.center.x - moveDistance;
     CGFloat checkMaxY = rootButton.center.y + moveDistance;
@@ -196,6 +204,8 @@ static CGFloat const kAnimationDuration_Follow = 0.25f;
     return newCenterPoint;
 }
 
+
+
 @end
 
 
@@ -234,7 +244,7 @@ static CGFloat const kAnimationDuration_Follow = 0.25f;
 -(UIButton *)getButtonWithTag:(NSUInteger)tempTag{
     PlacementUIButton *button = nil;
     if ( [_buttonDic count] >= tempTag || tempTag > 0 ) {
-        button = [_buttonDic objectForKey:@(tempTag-1)];
+        button = [_buttonDic objectForKey:@(tempTag)];
     }
     return button;
 }
@@ -323,8 +333,6 @@ static CGFloat const kAnimationDuration_Follow = 0.25f;
 #ifdef D_CoodyTest
     [button setTitle:[NSString stringWithFormat:@"%ld" , (long)button.tag] forState:(UIControlStateNormal)];
 #endif
-    button.layer.cornerRadius = 10.0f;
-    button.layer.masksToBounds = YES;
     [button setAlpha:D_PlacementButton_Alpha];
     [button addTarget:self action:@selector(beginTouch:) forControlEvents:(UIControlEventTouchDown)];
     [button addTarget:self action:@selector(wasDragged:withEvent:) forControlEvents:(UIControlEventTouchDragInside)];
@@ -350,6 +358,8 @@ static CGFloat const kAnimationDuration_Follow = 0.25f;
 -(void)beginTouch:(UIButton *)button{
     [button setAlpha:1.0f];
     
+#ifdef D_PlacementItemTools_Follow
+    
     // 移動其他的 point
     /*
      以一個框框為範圍縮限拉動距離， Dragged Exit 的時候再歸位就好
@@ -372,7 +382,6 @@ static CGFloat const kAnimationDuration_Follow = 0.25f;
                 else{
                     PlacementUIButton *checkButton = [_buttonArray objectAtIndex:(index - 1)];
                     if ( checkButton == button ) {
-                        
                         if ( index >= 2 ) {
                             checkButton = [_buttonArray objectAtIndex:(index - 2)];
                             [unit beginMoveToRootButton:checkButton];
@@ -380,8 +389,6 @@ static CGFloat const kAnimationDuration_Follow = 0.25f;
                         else{
                             [unit beginMoveToRootButton:checkButton];
                         }
-                        
-                        
                     }
                     else{
                         [unit beginMoveToRootButton:checkButton];
@@ -391,6 +398,8 @@ static CGFloat const kAnimationDuration_Follow = 0.25f;
             index++;
         }
     }
+    
+#endif
     
 }
 
@@ -410,6 +419,7 @@ static CGFloat const kAnimationDuration_Follow = 0.25f;
                                 button.center.y + delta_y);
     NSLog(@"( %.1f , %.1f )" , button.center.x , button.center.y );
     
+#ifdef D_PlacementItemTools_Follow
     // 移動其他的 point
     /*
      以一個框框為範圍縮限拉動距離， Dragged Exit 的時候再歸位就好
@@ -441,7 +451,6 @@ static CGFloat const kAnimationDuration_Follow = 0.25f;
                             [unit followRootButton:checkButton];
                         }
                         
-                        
                     }
                     else{
                         [unit followCloselyWithButton:checkButton];
@@ -451,6 +460,9 @@ static CGFloat const kAnimationDuration_Follow = 0.25f;
             index++;
         }
     }
+    
+#endif
+    
 }
 
 - (void)wasDraggedExit:(PlacementUIButton *)button
@@ -477,6 +489,11 @@ static CGFloat const kAnimationDuration_Follow = 0.25f;
                     /* 沒有任何按鈕被按到，所以所有按鈕移動到上方 */
                     strongSelf.isActive = YES;
                     button.isOnTouch = YES;
+                    
+                    // 依照陣列排序來排列
+                    for ( PlacementUIButton *button in strongSelf.buttonArray ) {
+                        
+                    }
                     
                 }
                 else{
@@ -506,6 +523,7 @@ static CGFloat const kAnimationDuration_Follow = 0.25f;
         }
     }];
     
+#ifdef D_PlacementItemTools_Follow
     // 移動其他的 point
     /*
      以一個框框為範圍縮限拉動距離， Dragged Exit 的時候再歸位就好
@@ -536,6 +554,7 @@ static CGFloat const kAnimationDuration_Follow = 0.25f;
             index++;
         }
     }
+#endif
 }
 
 +(CGFloat)checkX:(CGFloat)recentX{

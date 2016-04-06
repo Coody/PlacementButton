@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		FB841EF61CB4A44B00C5E895 /* PlacementItemTools+Badget.m in Sources */ = {isa = PBXBuildFile; fileRef = FB841EF51CB4A44A00C5E895 /* PlacementItemTools+Badget.m */; };
 		FB8D5A5F1C6326C700566D04 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = FB8D5A5E1C6326C700566D04 /* main.m */; };
 		FB8D5A621C6326C700566D04 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = FB8D5A611C6326C700566D04 /* AppDelegate.m */; };
 		FB8D5A651C6326C700566D04 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = FB8D5A641C6326C700566D04 /* ViewController.m */; };
@@ -17,6 +18,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		FB841EF41CB4A44A00C5E895 /* PlacementItemTools+Badget.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "PlacementItemTools+Badget.h"; sourceTree = "<group>"; };
+		FB841EF51CB4A44A00C5E895 /* PlacementItemTools+Badget.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "PlacementItemTools+Badget.m"; sourceTree = "<group>"; };
 		FB8D5A5A1C6326C700566D04 /* PlacementButton.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PlacementButton.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		FB8D5A5E1C6326C700566D04 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		FB8D5A601C6326C700566D04 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -88,6 +91,8 @@
 			children = (
 				FB8D5A761C6326F100566D04 /* PlacementItemTools.h */,
 				FB8D5A771C6326F100566D04 /* PlacementItemTools.m */,
+				FB841EF41CB4A44A00C5E895 /* PlacementItemTools+Badget.h */,
+				FB841EF51CB4A44A00C5E895 /* PlacementItemTools+Badget.m */,
 			);
 			path = PlacememtButton;
 			sourceTree = "<group>";
@@ -166,6 +171,7 @@
 				FB8D5A651C6326C700566D04 /* ViewController.m in Sources */,
 				FB8D5A621C6326C700566D04 /* AppDelegate.m in Sources */,
 				FB8D5A5F1C6326C700566D04 /* main.m in Sources */,
+				FB841EF61CB4A44B00C5E895 /* PlacementItemTools+Badget.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -314,6 +320,7 @@
 				FB8D5A731C6326C700566D04 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
