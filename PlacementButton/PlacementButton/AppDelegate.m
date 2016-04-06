@@ -10,6 +10,7 @@
 
 #import "ViewController.h"
 #import "PlacementItemTools.h"
+#import "PlacementItemTools+Badget.h"
 
 @interface AppDelegate ()
 
@@ -33,6 +34,9 @@
                                                  withHightLightImage:nil 
                                                     WithPressedBlock:^(UIButton *responseButton) {
                                                         NSLog(@"按下 A ！");
+                                                        static NSUInteger count = 0;
+                                                        count++;
+                                                        [[PlacementItemTools sharedInstance] setBadgetNumber:count withTag:responseButton.tag];
                                                     }];
     
     [[PlacementItemTools sharedInstance] createButtonWithNormalImage:nil 
@@ -40,6 +44,39 @@
                                                     WithPressedBlock:^(UIButton *responseButton) {
                                                         NSLog(@"按下 B ！");
                                                     }];
+    
+    [[PlacementItemTools sharedInstance] createButtonWithNormalImage:nil 
+                                                 withHightLightImage:nil 
+                                                    WithPressedBlock:^(UIButton *responseButton) {
+                                                        NSLog(@"按下 C ！");
+                                                        static NSUInteger count = 0;
+                                                        count++;
+                                                        [[PlacementItemTools sharedInstance] setBadgetNumber:count withTag:responseButton.tag];
+                                                    }];
+    
+    [[PlacementItemTools sharedInstance] createButtonWithNormalImage:nil 
+                                                 withHightLightImage:nil 
+                                                    WithPressedBlock:^(UIButton *responseButton) {
+                                                        NSLog(@"按下 D ！");
+                                                    }];
+    
+    [[PlacementItemTools sharedInstance] createButtonWithNormalImage:nil 
+                                                 withHightLightImage:nil 
+                                                    WithPressedBlock:^(UIButton *responseButton) {
+                                                        NSLog(@"按下 E ！");
+                                                        static NSUInteger count = 0;
+                                                        count++;
+                                                        [[PlacementItemTools sharedInstance] setBadgetNumber:count withTag:responseButton.tag];
+                                                    }];
+    
+    [[PlacementItemTools sharedInstance] createButtonWithNormalImage:nil 
+                                                 withHightLightImage:nil 
+                                                    WithPressedBlock:^(UIButton *responseButton) {
+                                                        NSLog(@"按下 B ！");
+                                                    }];
+    
+    [[PlacementItemTools sharedInstance] createBadgetWithAppendedView:[[PlacementItemTools sharedInstance] getButtonWithTag:1]];
+    
     
     return YES;
 }

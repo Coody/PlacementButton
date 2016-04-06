@@ -40,14 +40,16 @@
 #define D_PlacementItemTools_Height D_PlacementItemTools_Width
 
 // 按鈕透明度
-#define D_PlacementButton_Alpha (1.0f)
+#define D_PlacementButton_Alpha (0.6f)
 
 // 按鈕起始位置
 #define D_PlacementItemTools_Init_X ([UIScreen mainScreen].bounds.size.width - D_PlacementItemTools_Width - D_PlacementItemTools_Margin)
 #define D_PlacementItemTools_Init_Y (D_PlacementItemTools_Height*2)
 
+
+
 // 最大的 Button 數目
-NSUInteger const kPlacementItemTools_Max_Button_Count = 2;
+NSUInteger const kPlacementItemTools_Max_Button_Count = 10;
 
 // 動畫時間
 /** 目前拖拉按鈕放開後，回到邊緣的速度 */
@@ -156,10 +158,14 @@ static CGFloat const kAnimationDuration_Follow = 0.25f;
 -(void)followCloselyWithButton:(PlacementUIButton *)rootButton{
     CGFloat newX = self.center.x;
     CGFloat newY = self.center.y;
-    CGFloat checkMaxX = rootButton.center.x + (D_PlacementItemTools_Margin);
-    CGFloat checkMinX = rootButton.center.x - (D_PlacementItemTools_Margin);
-    CGFloat checkMaxY = rootButton.center.y + (D_PlacementItemTools_Margin);
-    CGFloat checkMinY = rootButton.center.y - (D_PlacementItemTools_Margin);
+//    CGFloat checkMaxX = rootButton.center.x + (D_PlacementItemTools_Margin);
+//    CGFloat checkMinX = rootButton.center.x - (D_PlacementItemTools_Margin);
+//    CGFloat checkMaxY = rootButton.center.y + (D_PlacementItemTools_Margin);
+//    CGFloat checkMinY = rootButton.center.y - (D_PlacementItemTools_Margin);
+    CGFloat checkMaxX = rootButton.center.x;
+    CGFloat checkMinX = rootButton.center.x;
+    CGFloat checkMaxY = rootButton.center.y;
+    CGFloat checkMinY = rootButton.center.y;
     if ( checkMaxX < newX ) {
         newX = checkMaxX;
     }
@@ -357,6 +363,7 @@ static CGFloat const kAnimationDuration_Follow = 0.25f;
 
 -(void)beginTouch:(UIButton *)button{
     [button setAlpha:1.0f];
+    button.layer.zPosition = 1000;
     
 #ifdef D_PlacementItemTools_Follow
     

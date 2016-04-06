@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		FB841EF61CB4A44B00C5E895 /* PlacementItemTools+Badget.m in Sources */ = {isa = PBXBuildFile; fileRef = FB841EF51CB4A44A00C5E895 /* PlacementItemTools+Badget.m */; };
+		FB841EF91CB4B61600C5E895 /* redCircle.png in Resources */ = {isa = PBXBuildFile; fileRef = FB841EF71CB4B61600C5E895 /* redCircle.png */; };
+		FB841EFA1CB4B61600C5E895 /* redCircle@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = FB841EF81CB4B61600C5E895 /* redCircle@2x.png */; };
 		FB8D5A5F1C6326C700566D04 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = FB8D5A5E1C6326C700566D04 /* main.m */; };
 		FB8D5A621C6326C700566D04 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = FB8D5A611C6326C700566D04 /* AppDelegate.m */; };
 		FB8D5A651C6326C700566D04 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = FB8D5A641C6326C700566D04 /* ViewController.m */; };
@@ -20,6 +22,8 @@
 /* Begin PBXFileReference section */
 		FB841EF41CB4A44A00C5E895 /* PlacementItemTools+Badget.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "PlacementItemTools+Badget.h"; sourceTree = "<group>"; };
 		FB841EF51CB4A44A00C5E895 /* PlacementItemTools+Badget.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "PlacementItemTools+Badget.m"; sourceTree = "<group>"; };
+		FB841EF71CB4B61600C5E895 /* redCircle.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = redCircle.png; sourceTree = "<group>"; };
+		FB841EF81CB4B61600C5E895 /* redCircle@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "redCircle@2x.png"; sourceTree = "<group>"; };
 		FB8D5A5A1C6326C700566D04 /* PlacementButton.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PlacementButton.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		FB8D5A5E1C6326C700566D04 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		FB8D5A601C6326C700566D04 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -89,6 +93,8 @@
 		FB8D5A751C6326F100566D04 /* PlacememtButton */ = {
 			isa = PBXGroup;
 			children = (
+				FB841EF71CB4B61600C5E895 /* redCircle.png */,
+				FB841EF81CB4B61600C5E895 /* redCircle@2x.png */,
 				FB8D5A761C6326F100566D04 /* PlacementItemTools.h */,
 				FB8D5A771C6326F100566D04 /* PlacementItemTools.m */,
 				FB841EF41CB4A44A00C5E895 /* PlacementItemTools+Badget.h */,
@@ -155,6 +161,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				FB8D5A6D1C6326C700566D04 /* LaunchScreen.storyboard in Resources */,
+				FB841EF91CB4B61600C5E895 /* redCircle.png in Resources */,
+				FB841EFA1CB4B61600C5E895 /* redCircle@2x.png in Resources */,
 				FB8D5A6A1C6326C700566D04 /* Assets.xcassets in Resources */,
 				FB8D5A681C6326C700566D04 /* Main.storyboard in Resources */,
 			);

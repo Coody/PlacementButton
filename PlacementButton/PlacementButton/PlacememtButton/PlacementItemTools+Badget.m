@@ -10,19 +10,34 @@
 
 // for Tools
 #import <UIKit/UIKit.h>
-#import "NSObject+SGT_DynamicProperty_Def.h"
-#import "O8App_Default_UI_Component.h"
-
-// Image Repository
-#import "App_System_Image_Repository_Define.h"
-#import "App_System_ImageRepository_Helper.h"
-#import "SGT_ImageRepository.h"
 
 static CGFloat const K_PlacemntItemTools_Badget_AnimationDuration = 0.1f;
 static NSUInteger const K_PlacemntItemTools_Badget_MaxCount = 99;
 
 #define K_PlacemntItemTools_Badget_Small [UIFont boldSystemFontOfSize:14]
 #define K_PlacemntItemTools_Badget_Big [UIFont boldSystemFontOfSize:16]
+
+
+/********************/
+// Dynamic property
+#include <objc/runtime.h>
+
+#define Category_Property_Get_Macro(type, property) \
+/* */ - (type) property \
+/* */ {\
+/* */   return objc_getAssociatedObject(self, @selector(property));\
+/* */ }
+
+#define Category_Property_Set_Macro(type, property, setter, associationFlag) \
+/* */ - (void) setter (type) property \
+/* */ { \
+/* */   objc_setAssociatedObject(self, @selector(property), property, associationFlag);\
+/* */ }
+
+#define Category_Property_Get_Set_RetainNonatomic_Macro(type, property, setter) \
+/* */ Category_Property_Get_Macro(type, property) \
+/* */ Category_Property_Set_Macro(type, property, setter, OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+/********************/
 
 
 #pragma mark - BadgetObject
@@ -44,7 +59,7 @@ static NSUInteger const K_PlacemntItemTools_Badget_MaxCount = 99;
         _badgetTag = tempView.tag;
         
         if ( _badgetImage == nil ) {
-            _badgetImage = [O8App_Default_UI_Component getImageFromeBundleByPath:D_App_System_GetPah(D_xxlobby_xxsystem_xxsystem_number_circle_png)];
+            _badgetImage = [UIImage imageNamed:@"redCircle"];
         }
         
         if ( _badgetLabel == nil ) {
@@ -161,6 +176,7 @@ Category_Property_Get_Set_RetainNonatomic_Macro(NSMutableDictionary*, badgetDic,
         BadgetView *badgetView = [[BadgetView alloc] initWithAppendedView:tempView];
         [self.badgetDic setObject:badgetView forKey:@(tempView.tag)];
         [tempView addSubview:badgetView];
+        [tempView bringSubviewToFront:badgetView];
     }
 }
 
