@@ -6,24 +6,48 @@
 
 #import <Foundation/Foundation.h>
 
+@class UIWindow;
 @class UIImage;
 @class UIButton;
 
 extern NSUInteger const kPlacementItemTools_Max_Button_Count;
 
+typedef enum : NSInteger{
+    EnumPlacementItemToolsZPosition_Activity = 200,
+    EnumPlacementItemToolsZPosition_normal = 500,
+    EnumPlacementItemToolsZPosition_Top = 1000
+}EnumPlacementItemToolsZPosition;
+
+// 圖片大小
+#define D_PlacementItemTools_Width (50)
+#define D_PlacementItemTools_Height D_PlacementItemTools_Width
+
+// 按鈕移到上方後的起始位置
+#define D_PlacementItemTools_Upper_X (D_PlacementItemTools_Width)
+#define D_PlacementItemTools_Upper_Y (D_PlacementItemTools_Height*0.5)
+
+// 動畫時間
+/** 目前拖拉按鈕放開後，回到邊緣的速度 */
+extern float const kAnimationDuration_Move;
+/** 跟隨的按鈕在拖拉按鈕放開後，回到邊緣的速度（建議慢一點點，會有跟隨移動的感覺） */
+extern float const kAnimationDuration_Follow;
+
 @interface PlacementItemTools : NSObject
+{
+    UIWindow *_tempKeyWindow;
+}
 
 #pragma mark - Shared Instance
 +(instancetype)sharedInstance;
 
 #pragma mark - 建立動態按鈕
-
 /**
  * @brief   - 建立一個動態按鈕
- * @details - 動態按鈕會以 Tag 的方式產生， Tag 由 1 開始，每次產生完下一個就會累加 1
+ * @details - 動態按鈕會以 Tag 的方式產生， Tag 請勿重複
  */
 -(void)createButtonWithNormalImage:(UIImage *)normalImage 
                withHightLightImage:(UIImage *)hightLightImage 
+                           withTag:(NSInteger)tempTag 
                   WithPressedBlock:(void(^)(UIButton *responseButton))tempPressedButtonBlock;
 
 /**
@@ -33,7 +57,7 @@ extern NSUInteger const kPlacementItemTools_Max_Button_Count;
 
 /**
  * @brief   - 取得指定 Tag 的 button
- * @warning - Tag 編號從 1 開始， 1,2,3 ...
+ * @warning - 
  */
 -(UIButton *)getButtonWithTag:(NSUInteger)tempTag;
 
@@ -46,5 +70,10 @@ extern NSUInteger const kPlacementItemTools_Max_Button_Count;
  * @brief - 移除指定 tag 的 button
  */
 -(BOOL)removeButtonWithTag:(NSInteger)tempTag;
+
+/**
+ * @brief - 將按鈕都推到最前面
+ */
+-(void)bringButtonToFront;
 
 @end
