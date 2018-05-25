@@ -10,7 +10,7 @@
 
 #import "ViewController.h"
 #import "PlacementItemTools.h"
-#import "PlacementItemTools+Badget.h"
+#import "UIView+Badget.h"
 
 @interface AppDelegate ()
 
@@ -29,54 +29,78 @@
     [self.window makeKeyWindow];
     [self.window makeKeyAndVisible];
     
+    [PlacementItemTools sharedInstance].isNeedFollow = YES;
     
     [[PlacementItemTools sharedInstance] createButtonWithNormalImage:nil 
                                                  withHightLightImage:nil 
+                                                    withTag:123
+                                                       withDoneBlock:^(UIButton *responseButton) {
+                                                           [responseButton setBackgroundColor:[UIColor grayColor]];
+                                                       }
                                                     WithPressedBlock:^(UIButton *responseButton) {
                                                         NSLog(@"按下 A ！");
                                                         static NSUInteger count = 0;
                                                         count++;
-                                                        [[PlacementItemTools sharedInstance] setBadgetNumber:count withTag:responseButton.tag];
+                                                        [responseButton createBadget];
+                                                        [responseButton setBadgetNumber:count];
                                                     }];
     
     [[PlacementItemTools sharedInstance] createButtonWithNormalImage:nil 
-                                                 withHightLightImage:nil 
-                                                    WithPressedBlock:^(UIButton *responseButton) {
-                                                        NSLog(@"按下 B ！");
-                                                    }];
+                                                 withHightLightImage:nil
+                                                             withTag:234
+                                                       withDoneBlock:^(UIButton *responseButton) {
+                                                     [responseButton setBackgroundColor:[UIColor grayColor]];
+                                                 } WithPressedBlock:^(UIButton *responseButton) {
+                                                     NSLog(@"按下 B ！");
+                                                 }];
     
     [[PlacementItemTools sharedInstance] createButtonWithNormalImage:nil 
                                                  withHightLightImage:nil 
+                                                             withTag:345
+                                                       withDoneBlock:^(UIButton *responseButton) {
+                                                           [responseButton setBackgroundColor:[UIColor grayColor]];
+                                                       }
                                                     WithPressedBlock:^(UIButton *responseButton) {
                                                         NSLog(@"按下 C ！");
                                                         static NSUInteger count = 0;
                                                         count++;
-                                                        [[PlacementItemTools sharedInstance] setBadgetNumber:count withTag:responseButton.tag];
+                                                        [responseButton createBadget];
+                                                        [responseButton setBadgetNumber:count];
                                                     }];
     
     [[PlacementItemTools sharedInstance] createButtonWithNormalImage:nil 
-                                                 withHightLightImage:nil 
+                                                 withHightLightImage:nil
+                                                             withTag:456
+                                                       withDoneBlock:^(UIButton *responseButton) {
+                                                           [responseButton setBackgroundColor:[UIColor grayColor]];
+                                                       }
                                                     WithPressedBlock:^(UIButton *responseButton) {
                                                         NSLog(@"按下 D ！");
                                                     }];
     
     [[PlacementItemTools sharedInstance] createButtonWithNormalImage:nil 
-                                                 withHightLightImage:nil 
+                                                 withHightLightImage:nil
+                                                             withTag:567
+                                                       withDoneBlock:^(UIButton *responseButton) {
+                                                           [responseButton setBackgroundColor:[UIColor grayColor]];
+                                                       }
                                                     WithPressedBlock:^(UIButton *responseButton) {
                                                         NSLog(@"按下 E ！");
                                                         static NSUInteger count = 0;
                                                         count++;
-                                                        [[PlacementItemTools sharedInstance] setBadgetNumber:count withTag:responseButton.tag];
+                                                        [responseButton createBadget];
+                                                        [responseButton setBadgetNumber:count];
                                                     }];
     
     [[PlacementItemTools sharedInstance] createButtonWithNormalImage:nil 
-                                                 withHightLightImage:nil 
+                                                 withHightLightImage:nil
+                                                             withTag:678
+                                                       withDoneBlock:^(UIButton *responseButton) {
+                                                           [responseButton setBackgroundColor:[UIColor grayColor]];
+                                                       }
                                                     WithPressedBlock:^(UIButton *responseButton) {
                                                         NSLog(@"按下 B ！");
                                                     }];
-    
-    [[PlacementItemTools sharedInstance] createBadgetWithAppendedView:[[PlacementItemTools sharedInstance] getButtonWithTag:1]];
-    
     
     return YES;
 }

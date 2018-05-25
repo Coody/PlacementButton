@@ -4,11 +4,7 @@
 //  Created by Coody on 2016/2/3.
 //
 
-#import <Foundation/Foundation.h>
-
-@class UIWindow;
-@class UIImage;
-@class UIButton;
+#import <UIKit/UIKit.h>
 
 extern NSUInteger const kPlacementItemTools_Max_Button_Count;
 
@@ -36,7 +32,7 @@ extern float const kAnimationDuration_Follow;
 {
     UIWindow *_tempKeyWindow;
 }
-
+@property (nonatomic , assign) BOOL isNeedFollow;
 #pragma mark - Shared Instance
 +(instancetype)sharedInstance;
 
@@ -45,10 +41,17 @@ extern float const kAnimationDuration_Follow;
  * @brief   - 建立一個動態按鈕
  * @details - 動態按鈕會以 Tag 的方式產生， Tag 請勿重複
  */
--(void)createButtonWithNormalImage:(UIImage *)normalImage 
-               withHightLightImage:(UIImage *)hightLightImage 
-                           withTag:(NSInteger)tempTag 
+-(void)createButtonWithNormalImage:(UIImage *)normalImage
+               withHightLightImage:(UIImage *)hightLightImage
+                           withTag:(NSInteger)tempTag
+                     withDoneBlock:(void(^)(UIButton *responseButton))tempDoneBlock
                   WithPressedBlock:(void(^)(UIButton *responseButton))tempPressedButtonBlock;
+
+/** 設定按鈕不動的時候，按鈕的 Alpha */
+-(void)setButtonNormalAlpha:(CGFloat)buttonNormalAlpha;
+
+/** 設定按鈕移動的時候，按鈕的 Alpha */
+-(void)setButtonMoveAlpha:(CGFloat)buttonMoveAlpha;
 
 /**
  * @brief - 隱藏/顯示所有動態按鈕
@@ -75,5 +78,10 @@ extern float const kAnimationDuration_Follow;
  * @brief - 將按鈕都推到最前面
  */
 -(void)bringButtonToFront;
+
+/**
+ *  重新設定 button 的位置
+ */
+-(void)resetButtonPosition;
 
 @end

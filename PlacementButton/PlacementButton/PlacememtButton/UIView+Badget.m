@@ -54,8 +54,8 @@ static CGFloat const K_Badget_AnimationScaleMargin = 4;
             [_badgetLabel setText:@"0"];
         }
         
-        [self setFrame:CGRectMake(tempView.frame.size.width - _badgetImage.size.width,
-                                  5,
+        [self setFrame:CGRectMake(tempView.frame.size.width - _badgetImage.size.width*0.5,
+                                  _badgetImage.size.width*-0.5,
                                   _badgetImage.size.width,
                                   _badgetImage.size.height)];
         [self setImage:_badgetImage];

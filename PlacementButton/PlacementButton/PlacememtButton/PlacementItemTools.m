@@ -6,10 +6,10 @@
 
 #import "PlacementItemTools.h"
 
-#import <UIKit/UIKit.h>
-
+/** Debug Mode */
+#define D_CoodyTest
 /** 多個按鈕是否移動的時候跟隨？ */
-//#define D_PlacementItemTools_Follow
+#define D_PlacementItemTools_Follow
 /** 點擊後是否移到上方排列？ */
 //#define D_PlacementItemTools_MoveToTop
 
@@ -36,15 +36,20 @@
 #define D_PlacementItemTools_Edge_TopY_Height (0)
 #define D_PlacementItemTools_Edge_BottomY_Height D_PlacementItemTools_Edge_TopY_Height
 
-// 按鈕起始位置
-#define D_PlacementItemTools_Init_X ([UIScreen mainScreen].bounds.size.width - D_PlacementItemTools_Width - D_PlacementItemTools_Margin)
-#define D_PlacementItemTools_Init_Y (D_PlacementItemTools_Height*2)
-
 // 離牆壁的微小距離
 #define D_PlacementItemTools_Margin (2)
+#define D_PlacementItemTools_TopMargin ([PlacementItemTools getSafeAreaInsets].top)
+#define D_PlacementItemTools_BottomMargin ([PlacementItemTools getSafeAreaInsets].bottom)
+#define D_PlacementItemTools_RightMargin ([PlacementItemTools getSafeAreaInsets].right)
+#define D_PlacementItemTools_LeftMargin ([PlacementItemTools getSafeAreaInsets].left)
+
+
+// 按鈕起始位置
+#define D_PlacementItemTools_Init_X ([UIScreen mainScreen].bounds.size.width - D_PlacementItemTools_Width - D_PlacementItemTools_Margin - D_PlacementItemTools_RightMargin)
+#define D_PlacementItemTools_Init_Y (D_PlacementItemTools_Height*2 + D_PlacementItemTools_TopMargin)
 
 // 按鈕透明度
-#define D_PlacementButton_NormalAlpha (1.0f)
+#define D_PlacementButton_NormalAlpha (0.6f)
 #define D_PlacementButton_MoveAlpha (1.0f)
 
 // 最大的 Button 數目
@@ -219,6 +224,8 @@ float const kAnimationDuration_Follow = 0.25f;
 @property (nonatomic , assign) NSInteger buttonIndex;
 @property (nonatomic , strong) NSMutableDictionary *buttonDic;
 @property (nonatomic , strong) NSArray *buttonArray;
+@property (nonatomic , assign) CGFloat buttonNormalAlpha;
+@property (nonatomic , assign) CGFloat buttonMoveAlpha;
 @end
 
 @implementation PlacementItemTools
@@ -229,11 +236,90 @@ float const kAnimationDuration_Follow = 0.25f;
     static dispatch_once_t pred;
     dispatch_once(&pred, ^{
         if ( sharedInstance == nil ) {
-            sharedInstance = [[self alloc] init];
+            sharedInstance = [[PlacementItemTools alloc] init];
             sharedInstance.isActive = NO;
         }
     });
     return sharedInstance;
+}
+
+-(void)createButtonWithNormalImage:(UIImage *)normalImage
+               withHightLightImage:(UIImage *)hightLightImage
+                           withTag:(NSInteger)tempTag
+                     withDoneBlock:(void(^)(UIButton *responseButton))tempDoneBlock
+                  WithPressedBlock:(void(^)(UIButton *responseButton))tempPressedButtonBlock
+{
+    if ( [_buttonDic count] >= kPlacementItemTools_Max_Button_Count ) {
+        return;
+    }
+    if ( [_buttonDic objectForKey:@(tempTag)] != nil ) {
+        return;
+    }
+    _buttonIndex = tempTag;
+    
+    PlacementUIButton *button;
+    button = [[PlacementUIButton alloc] initWithFrame:CGRectMake(D_PlacementItemTools_Init_X,
+                                                                 D_PlacementItemTools_Init_Y*([_buttonDic count]+1),
+                                                                 D_PlacementItemTools_Width,
+                                                                 D_PlacementItemTools_Height)];
+    
+    if ( normalImage != nil ) {
+        [button setImage:normalImage forState:UIControlStateNormal];
+        //        [button setBackgroundImage:normalImage
+        //                          forState:UIControlStateNormal];
+    }
+    if ( hightLightImage != nil ) {
+        [button setImage:hightLightImage forState:UIControlStateHighlighted];
+        //        [button setBackgroundImage:hightLightImage
+        //                          forState:UIControlStateHighlighted];
+    }
+    
+    [button setBackgroundColor:[UIColor clearColor]];
+    button.tag = _buttonIndex;
+    button.pressedButtonBlock = tempPressedButtonBlock;
+#ifdef D_CoodyTest
+    [button setTitle:[NSString stringWithFormat:@"%ld" , (long)button.tag] forState:(UIControlStateNormal)];
+#endif
+    [button setAlpha:_buttonNormalAlpha];
+    [button addTarget:self action:@selector(beginTouch:) forControlEvents:(UIControlEventTouchDown)];
+    [button addTarget:self action:@selector(wasDragged:withEvent:) forControlEvents:(UIControlEventTouchDragInside)];
+    [button addTarget:self action:@selector(wasDraggedExit:) forControlEvents:(UIControlEventTouchUpInside)];
+    [button addTarget:self action:@selector(wasDraggedExit:) forControlEvents:(UIControlEventTouchUpOutside)];
+    
+    [_tempKeyWindow addSubview:button];
+    button.layer.zPosition = EnumPlacementItemToolsZPosition_normal;
+    
+    [_buttonDic setObject:button forKey:@(_buttonIndex)];
+    _buttonArray = [[_buttonDic allValues] sortedArrayUsingComparator:^NSComparisonResult( PlacementUIButton *obj1 , PlacementUIButton *obj2) {
+        if ( obj1.tag < obj2.tag ) {
+            return (NSComparisonResult)NSOrderedAscending;
+        }
+        else if( obj1.tag > obj2.tag){
+            return (NSComparisonResult)NSOrderedDescending;
+        }
+        else{
+            return (NSComparisonResult)NSOrderedSame;
+        }
+    }];
+    tempDoneBlock(button);
+}
+
+-(void)setButtonNormalAlpha:(CGFloat)buttonNormalAlpha{
+    if( buttonNormalAlpha > 1.0f ){
+        buttonNormalAlpha = 1.0f;
+    }
+    else if( buttonNormalAlpha < 0.0f ){
+        buttonNormalAlpha = 0.0f;
+    }
+}
+
+-(void)setButtonMoveAlpha:(CGFloat)buttonMoveAlpha{
+    if( buttonMoveAlpha > 1.0f ){
+        buttonMoveAlpha = 1.0f;
+    }
+    else if( buttonMoveAlpha < 0.0f ){
+        buttonMoveAlpha = 0.0f;
+    }
 }
 
 -(void)setHidden:(BOOL)isHidden{
@@ -282,6 +368,33 @@ float const kAnimationDuration_Follow = 0.25f;
     }
 }
 
+-(void)resetButtonPosition{
+    //    UIInterfaceOrientation orientation = [UIApplication sharedApplication].statusBarOrientation;
+    //
+    //    if(orientation == UIInterfaceOrientationLandscapeLeft || orientation == UIInterfaceOrientationLandscapeRight){
+    //        //UI is in Default (Portrait) -- this is really a just a failsafe.
+    //
+    //    }
+    //    else{
+    //
+    //    }
+    __block NSUInteger index = 0;
+    
+    if( UIDeviceOrientationIsPortrait([UIDevice currentDevice].orientation) || UIDeviceOrientationIsLandscape([UIDevice currentDevice].orientation) )
+    {
+        for ( PlacementUIButton *button in _buttonArray ) {
+            [UIView animateWithDuration:0.1f animations:^{
+                [button setFrame:CGRectMake(D_PlacementItemTools_Init_X,
+                                            D_PlacementItemTools_Init_Y*(index+1),
+                                            D_PlacementItemTools_Width,
+                                            D_PlacementItemTools_Height)];
+                
+                index = index + 1;
+            }];
+        }
+    }
+}
+
 #pragma mark - 內部方法
 -(instancetype)init{
     self = [super init];
@@ -289,6 +402,9 @@ float const kAnimationDuration_Follow = 0.25f;
         _buttonIndex = 0;
         _tempKeyWindow = [UIApplication sharedApplication].keyWindow;
         _buttonDic = [[NSMutableDictionary alloc] init];
+        _buttonNormalAlpha = D_PlacementButton_NormalAlpha;
+        _buttonMoveAlpha = D_PlacementButton_MoveAlpha;
+        _isNeedFollow = NO;
     }
     return self;
 }
@@ -301,111 +417,49 @@ float const kAnimationDuration_Follow = 0.25f;
     _buttonDic = nil;
 }
 
--(void)createButtonWithNormalImage:(UIImage *)normalImage 
-               withHightLightImage:(UIImage *)hightLightImage 
-                           withTag:(NSInteger)tempTag  
-                  WithPressedBlock:(void(^)(UIButton *responseButton))tempPressedButtonBlock
-{
-    if ( [_buttonDic count] >= kPlacementItemTools_Max_Button_Count ) {
-        return;
-    }
-    if ( [_buttonDic objectForKey:@(tempTag)] != nil ) {
-        return;
-    }
-    _buttonIndex = tempTag;
-    
-    PlacementUIButton *button;
-    button = [[PlacementUIButton alloc] initWithFrame:CGRectMake(D_PlacementItemTools_Init_X, 
-                                                                 D_PlacementItemTools_Init_Y*([_buttonDic count]+1), 
-                                                                 D_PlacementItemTools_Width, 
-                                                                 D_PlacementItemTools_Height)];
-    
-    if ( normalImage != nil ) {
-        [button setImage:normalImage forState:UIControlStateNormal];
-//        [button setBackgroundImage:normalImage 
-//                          forState:UIControlStateNormal];
-    }
-    if ( hightLightImage != nil ) {
-        [button setImage:hightLightImage forState:UIControlStateHighlighted];
-//        [button setBackgroundImage:hightLightImage 
-//                          forState:UIControlStateHighlighted];
-    }
-    
-    [button setBackgroundColor:[UIColor clearColor]];
-    button.tag = _buttonIndex;
-    button.pressedButtonBlock = tempPressedButtonBlock;
-#define D_CoodyTest
-#ifdef D_CoodyTest
-    [button setBackgroundColor:[UIColor grayColor]];
-    button.layer.cornerRadius = 5.0;
-    button.layer.masksToBounds = YES;
-    [button setTitle:[NSString stringWithFormat:@"%ld" , (long)button.tag] forState:(UIControlStateNormal)];
-#endif
-    [button setAlpha:D_PlacementButton_NormalAlpha];
-    [button addTarget:self action:@selector(beginTouch:) forControlEvents:(UIControlEventTouchDown)];
-    [button addTarget:self action:@selector(wasDragged:withEvent:) forControlEvents:(UIControlEventTouchDragInside)];
-    [button addTarget:self action:@selector(wasDraggedExit:) forControlEvents:(UIControlEventTouchUpInside)];
-    [button addTarget:self action:@selector(wasDraggedExit:) forControlEvents:(UIControlEventTouchUpOutside)];
-    
-    [_tempKeyWindow addSubview:button];
-    button.layer.zPosition = EnumPlacementItemToolsZPosition_normal;
-    
-    [_buttonDic setObject:button forKey:@(_buttonIndex)];
-    _buttonArray = [[_buttonDic allValues] sortedArrayUsingComparator:^NSComparisonResult( PlacementUIButton *obj1 , PlacementUIButton *obj2) {
-        if ( obj1.tag < obj2.tag ) {
-            return (NSComparisonResult)NSOrderedAscending;
-        }
-        else if( obj1.tag > obj2.tag){
-            return (NSComparisonResult)NSOrderedDescending;
-        }
-        else{
-            return (NSComparisonResult)NSOrderedSame;
-        }
-    }];
-}
-
 -(void)beginTouch:(UIButton *)button{
-    [button setAlpha:D_PlacementButton_MoveAlpha];
+    [button setAlpha:_buttonMoveAlpha];
     button.layer.zPosition = EnumPlacementItemToolsZPosition_Top;
     
 #ifdef D_PlacementItemTools_Follow
-    
-    // 移動其他的 point
-    /*
-     以一個框框為範圍縮限拉動距離， Dragged Exit 的時候再歸位就好
-     */
-    if ( [_buttonDic count] > 1 ) {
-        
+    if( _isNeedFollow ){
+        // 移動其他的 point
         /*
-         演算法： 1~5 ，有 5 個按鈕，假設 3 被當成拖曳對象，
-         則跟隨的順序會變成： 3 -> 1 -> 2 -> 4 -> 5
-         ( 也就是說，當「 4 號按鈕」取出來要跟隨「 3 號按鈕」的時候，發現「 3 號按鈕」跟「拖曳的按鈕」一樣，就改成跟「 2 號按鈕」。)
+         以一個框框為範圍縮限拉動距離， Dragged Exit 的時候再歸位就好
          */
-        
-        NSUInteger index = 0;
-        
-        for ( PlacementUIButton *unit in _buttonArray ) {
-            if ( unit != button ) {
-                if ( index == 0  ) {
-                    [unit beginMoveToRootButton:(PlacementUIButton *)button];
-                }
-                else{
-                    PlacementUIButton *checkButton = [_buttonArray objectAtIndex:(index - 1)];
-                    if ( checkButton == button ) {
-                        if ( index >= 2 ) {
-                            checkButton = [_buttonArray objectAtIndex:(index - 2)];
-                            [unit beginMoveToRootButton:checkButton];
+        if ( [_buttonDic count] > 1 ) {
+            
+            /*
+             演算法： 1~5 ，有 5 個按鈕，假設 3 被當成拖曳對象，
+             則跟隨的順序會變成： 3 -> 1 -> 2 -> 4 -> 5
+             ( 也就是說，當「 4 號按鈕」取出來要跟隨「 3 號按鈕」的時候，發現「 3 號按鈕」跟「拖曳的按鈕」一樣，就改成跟「 2 號按鈕」。)
+             */
+            
+            NSUInteger index = 0;
+            
+            for ( PlacementUIButton *unit in _buttonArray ) {
+                if ( unit != button ) {
+                    if ( index == 0  ) {
+                        [unit beginMoveToRootButton:(PlacementUIButton *)button];
+                    }
+                    else{
+                        PlacementUIButton *checkButton = [_buttonArray objectAtIndex:(index - 1)];
+                        if ( checkButton == button ) {
+                            if ( index >= 2 ) {
+                                checkButton = [_buttonArray objectAtIndex:(index - 2)];
+                                [unit beginMoveToRootButton:checkButton];
+                            }
+                            else{
+                                [unit beginMoveToRootButton:checkButton];
+                            }
                         }
                         else{
                             [unit beginMoveToRootButton:checkButton];
                         }
                     }
-                    else{
-                        [unit beginMoveToRootButton:checkButton];
-                    }
                 }
+                index++;
             }
-            index++;
         }
     }
     
@@ -429,44 +483,47 @@ float const kAnimationDuration_Follow = 0.25f;
                                 button.center.y + delta_y);
     
 #ifdef D_PlacementItemTools_Follow
-    // 移動其他的 point
-    /*
-     以一個框框為範圍縮限拉動距離， Dragged Exit 的時候再歸位就好
-     */
-    if ( [_buttonDic count] > 1 ) {
-        
+    
+    if( _isNeedFollow ){
+        // 移動其他的 point
         /*
-         演算法： 1~5 ，有 5 個按鈕，假設 3 被當成拖曳對象，
-         則跟隨的順序會變成： 3 -> 1 -> 2 -> 4 -> 5
-         ( 也就是說，當「 4 號按鈕」取出來要跟隨「 3 號按鈕」的時候，發現「 3 號按鈕」跟「拖曳的按鈕」一樣，就改成跟「 2 號按鈕」。)
+         以一個框框為範圍縮限拉動距離， Dragged Exit 的時候再歸位就好
          */
-        
-        NSUInteger index = 0;
-        
-        for ( PlacementUIButton *unit in _buttonArray ) {
-            if ( unit != button ) {
-                if ( index == 0  ) {
-                    [unit followRootButton:(PlacementUIButton *)button];
-                }
-                else{
-                    PlacementUIButton *checkButton = [_buttonArray objectAtIndex:(index - 1)];
-                    if ( checkButton == button ) {
-                        
-                        if ( index > 1 ) {
-                            checkButton = [_buttonArray objectAtIndex:(index - 2)];
-                            [unit followCloselyWithButton:checkButton];
-                        }
-                        else{
-                            [unit followRootButton:checkButton];
-                        }
-                        
+        if ( [_buttonDic count] > 1 ) {
+            
+            /*
+             演算法： 1~5 ，有 5 個按鈕，假設 3 被當成拖曳對象，
+             則跟隨的順序會變成： 3 -> 1 -> 2 -> 4 -> 5
+             ( 也就是說，當「 4 號按鈕」取出來要跟隨「 3 號按鈕」的時候，發現「 3 號按鈕」跟「拖曳的按鈕」一樣，就改成跟「 2 號按鈕」。)
+             */
+            
+            NSUInteger index = 0;
+            
+            for ( PlacementUIButton *unit in _buttonArray ) {
+                if ( unit != button ) {
+                    if ( index == 0  ) {
+                        [unit followRootButton:(PlacementUIButton *)button];
                     }
                     else{
-                        [unit followCloselyWithButton:checkButton];
+                        PlacementUIButton *checkButton = [_buttonArray objectAtIndex:(index - 1)];
+                        if ( checkButton == button ) {
+                            
+                            if ( index > 1 ) {
+                                checkButton = [_buttonArray objectAtIndex:(index - 2)];
+                                [unit followCloselyWithButton:checkButton];
+                            }
+                            else{
+                                [unit followRootButton:checkButton];
+                            }
+                            
+                        }
+                        else{
+                            [unit followCloselyWithButton:checkButton];
+                        }
                     }
                 }
+                index++;
             }
-            index++;
         }
     }
     
@@ -494,7 +551,7 @@ float const kAnimationDuration_Follow = 0.25f;
     [UIView animateWithDuration:kAnimationDuration_Move animations:^{
         // move button
         button.center = resultCenterPoint;
-        [button setAlpha:D_PlacementButton_NormalAlpha];
+        [button setAlpha:_buttonNormalAlpha];
         
     } completion:^(BOOL finished) {
         if ( finished ) {
@@ -560,34 +617,36 @@ float const kAnimationDuration_Follow = 0.25f;
     }];
     
 #ifdef D_PlacementItemTools_Follow
-    // 移動其他的 point
-    /*
-     以一個框框為範圍縮限拉動距離， Dragged Exit 的時候再歸位就好
-     */
-    if ( [_buttonDic count] > 1 ) {
-        
+    if( _isNeedFollow ){
+        // 移動其他的 point
         /*
-         演算法： 1~5 ，有 5 個按鈕，假設 3 被當成拖曳對象，
-         則跟隨的順序會變成： 3 -> 1 -> 2 -> 4 -> 5
-         ( 也就是說，當「 4 號按鈕」取出來要跟隨「 3 號按鈕」的時候，發現「 3 號按鈕」跟「拖曳的按鈕」一樣，就改成跟「 2 號按鈕」。)
+         以一個框框為範圍縮限拉動距離， Dragged Exit 的時候再歸位就好
          */
-        
-        NSUInteger index = 0;
-        
-        for ( PlacementUIButton *unit in _buttonArray ) {
-            if ( unit != button ) {
-                if ( index == 0  ) {
-                    [unit endFollowRootButton:(PlacementUIButton *)button];
-                }
-                else{
-                    PlacementUIButton *checkButton = [_buttonArray objectAtIndex:(index - 1)];
-                    if ( (checkButton == button) && (index > 1) ) {
-                        checkButton = [_buttonArray objectAtIndex:(index - 2)];
+        if ( [_buttonDic count] > 1 ) {
+            
+            /*
+             演算法： 1~5 ，有 5 個按鈕，假設 3 被當成拖曳對象，
+             則跟隨的順序會變成： 3 -> 1 -> 2 -> 4 -> 5
+             ( 也就是說，當「 4 號按鈕」取出來要跟隨「 3 號按鈕」的時候，發現「 3 號按鈕」跟「拖曳的按鈕」一樣，就改成跟「 2 號按鈕」。)
+             */
+            
+            NSUInteger index = 0;
+            
+            for ( PlacementUIButton *unit in _buttonArray ) {
+                if ( unit != button ) {
+                    if ( index == 0  ) {
+                        [unit endFollowRootButton:(PlacementUIButton *)button];
                     }
-                    [unit endFollowRootButton:checkButton];
+                    else{
+                        PlacementUIButton *checkButton = [_buttonArray objectAtIndex:(index - 1)];
+                        if ( (checkButton == button) && (index > 1) ) {
+                            checkButton = [_buttonArray objectAtIndex:(index - 2)];
+                        }
+                        [unit endFollowRootButton:checkButton];
+                    }
                 }
+                index++;
             }
-            index++;
         }
     }
 #endif
@@ -597,11 +656,11 @@ float const kAnimationDuration_Follow = 0.25f;
     // 如果 x 超過邊界，要回到邊界
     CGSize mainScreenSize = [UIScreen mainScreen].bounds.size;
     CGFloat newX = recentX;
-    if ( recentX < D_PlacementItemTools_Width*0.5 + D_PlacementItemTools_Margin ) {
-        newX = D_PlacementItemTools_Width*0.5 + D_PlacementItemTools_Margin;
+    if ( recentX < D_PlacementItemTools_Width*0.5 + D_PlacementItemTools_Margin + D_PlacementItemTools_LeftMargin ) {
+        newX = D_PlacementItemTools_Width*0.5 + D_PlacementItemTools_Margin + D_PlacementItemTools_LeftMargin;
     }
-    else if( recentX > mainScreenSize.width - D_PlacementItemTools_Width*0.5 - D_PlacementItemTools_Margin ){
-        newX = mainScreenSize.width - D_PlacementItemTools_Width*0.5 - D_PlacementItemTools_Margin;
+    else if( recentX > mainScreenSize.width - D_PlacementItemTools_Width*0.5 - D_PlacementItemTools_Margin - D_PlacementItemTools_RightMargin ){
+        newX = mainScreenSize.width - D_PlacementItemTools_Width*0.5 - D_PlacementItemTools_Margin - D_PlacementItemTools_RightMargin;
     }
     return newX;
 }
@@ -610,11 +669,11 @@ float const kAnimationDuration_Follow = 0.25f;
     // 如果 x 超過邊界，要回到邊界
     CGSize mainScreenSize = [UIScreen mainScreen].bounds.size;
     CGFloat newY = recentY;
-    if ( recentY < D_PlacementItemTools_Height*0.5 + D_PlacementItemTools_Margin + D_PlacementItemTools_Margin*5 ) {
-        newY = D_PlacementItemTools_Height*0.5 + D_PlacementItemTools_Margin + D_PlacementItemTools_Margin*5;
+    if ( recentY < D_PlacementItemTools_Height*0.5 + D_PlacementItemTools_Margin + D_PlacementItemTools_Margin*5 + D_PlacementItemTools_TopMargin ) {
+        newY = D_PlacementItemTools_Height*0.5 + D_PlacementItemTools_Margin + D_PlacementItemTools_Margin*5 + D_PlacementItemTools_TopMargin;
     }
-    else if( recentY > mainScreenSize.height - D_PlacementItemTools_Height*0.5 - D_PlacementItemTools_Margin ){
-        newY = mainScreenSize.height - D_PlacementItemTools_Height*0.5 - D_PlacementItemTools_Margin;
+    else if( recentY > mainScreenSize.height - D_PlacementItemTools_Height*0.5 - D_PlacementItemTools_Margin - D_PlacementItemTools_BottomMargin ){
+        newY = mainScreenSize.height - D_PlacementItemTools_Height*0.5 - D_PlacementItemTools_Margin - D_PlacementItemTools_BottomMargin;
     }
     return newY;
 }
@@ -624,16 +683,16 @@ float const kAnimationDuration_Follow = 0.25f;
     CGSize mainScreenSize = CGSizeMake([UIScreen mainScreen].bounds.size.width, [UIScreen mainScreen].bounds.size.height);
     
     // Y 值在 0~80 以及 400~480 的範圍（已高度 480 來算）
-    if ( fixPoint.y <= D_PlacementItemTools_Edge_TopY_Height) {
+    if ( fixPoint.y <= D_PlacementItemTools_Edge_TopY_Height + D_PlacementItemTools_TopMargin ) {
         // 移動到最上面（ x 不動 , y 動 ）
-        fixPoint.y = D_PlacementItemTools_Height*0.5 + D_PlacementItemTools_Margin;
+        fixPoint.y = D_PlacementItemTools_Height*0.5 + D_PlacementItemTools_Margin + D_PlacementItemTools_TopMargin;
         
         // 如果 x 超過邊界，要回到邊界
         fixPoint.x = [PlacementItemTools checkX:fixPoint.x];
     }
-    else if ( fixPoint.y >= mainScreenSize.height - D_PlacementItemTools_Edge_BottomY_Height ){
+    else if ( fixPoint.y >= mainScreenSize.height - D_PlacementItemTools_Edge_BottomY_Height - D_PlacementItemTools_BottomMargin ){
         // 移動到最下面（ x 不動 , y 動 ）
-        fixPoint.y = mainScreenSize.height - D_PlacementItemTools_Height*0.5 - D_PlacementItemTools_Margin;
+        fixPoint.y = mainScreenSize.height - D_PlacementItemTools_Height*0.5 - D_PlacementItemTools_Margin - D_PlacementItemTools_BottomMargin;
         
         // 如果 x 超過邊界，要回到邊界
         fixPoint.x = [PlacementItemTools checkX:originalPoint.x];
@@ -641,11 +700,11 @@ float const kAnimationDuration_Follow = 0.25f;
     else{
         if ( fixPoint.x > mainScreenSize.width*0.5 ) {
             // 移動到最右邊（ x 動 , y 不動 ）
-            fixPoint.x = mainScreenSize.width - D_PlacementItemTools_Width*0.5 - D_PlacementItemTools_Margin;
+            fixPoint.x = mainScreenSize.width - D_PlacementItemTools_Width*0.5 - D_PlacementItemTools_Margin - D_PlacementItemTools_RightMargin;
         }
         else{
             // 移動到最左邊（ x 動 , y 不動 ）
-            fixPoint.x = D_PlacementItemTools_Width*0.5 + D_PlacementItemTools_Margin;
+            fixPoint.x = D_PlacementItemTools_Width*0.5 + D_PlacementItemTools_Margin + D_PlacementItemTools_LeftMargin;
         }
         
         fixPoint.y = [PlacementItemTools checkY:fixPoint.y];
@@ -653,6 +712,29 @@ float const kAnimationDuration_Follow = 0.25f;
     }
     
     return fixPoint;
+}
+
+#pragma mark - SafeArea
++(UIEdgeInsets)getSafeAreaInsets{
+    UIEdgeInsets safeInsets;
+    UIWindow *_keyWindow = [[[UIApplication sharedApplication] delegate] window];
+    if ( @available( iOS 11.0 , * ) ) {
+        safeInsets = _keyWindow.safeAreaInsets;
+    } else {
+        safeInsets = _keyWindow.alignmentRectInsets;
+    }
+    return safeInsets;
+}
+
++(CGRect)getSafeAreaFrame{
+    CGRect safeFrame;
+    UIWindow *_keyWindow = [[[UIApplication sharedApplication] delegate] window];
+    if ( @available( iOS 11.0 , * ) ) {
+        safeFrame = UIEdgeInsetsInsetRect([UIScreen mainScreen].bounds, _keyWindow.safeAreaInsets);
+    } else {
+        safeFrame = [UIScreen mainScreen].bounds;
+    }
+    return safeFrame;
 }
 
 @end
